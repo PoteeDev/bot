@@ -1,0 +1,46 @@
+dialogs:
+  hello:
+    message: "Hi, my name Potee, and what's your name?"
+    attachment: img/img.jpeg
+    write: name
+    next: data
+  data:
+    attachment: img/img.jpeg
+    next: role
+  role:
+    message: "Are you capitan?"
+    attachment: img/img.jpeg
+
+    buttons:
+      - text: "Yes"
+        next: capitan
+      - text: "No"
+        next: user
+      - text: "Я лох"
+        next: you_are_lox
+  capitan:
+    message: "Enter your team name"
+    write: entity
+    next: default_user
+  you_are_lox:
+    message: "ты действительно лох"
+    next: user
+  user:
+    message: "Enter your team name that already exist"
+    write: entity
+    validate:
+      key: entity
+      wrong: "sory"
+      next: user # TODO
+    next: default_user
+
+  default_user:
+    message: "Enter your group"
+    write: group
+    next: ending
+  ending:
+    message: "your name is {}, entity {}, group {} "
+    format:
+      - name
+      - entity
+      - group
