@@ -1,15 +1,13 @@
-from ast import arg
 from dataclasses import dataclass
 from pathlib import Path
-from tabnanny import check
 import yaml
 from typing import List, Dict
 from os.path import exists
-
+import os
 import telebot
 from telebot import types
 
-bot = telebot.TeleBot("5376443273:AAFwH8rVgGWEBZgRjzbtGPR7KL5oSVdAGuI")
+bot = telebot.TeleBot(os.getenv("BOT_TOKEN"))
 
 
 @dataclass
