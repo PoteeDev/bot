@@ -6,6 +6,7 @@ from os.path import exists
 import os
 import telebot
 from telebot import types
+import json
 
 bot = telebot.TeleBot(os.getenv("BOT_TOKEN"))
 
@@ -130,16 +131,26 @@ class Dialogs:
                 bot.send_photo(**args, photo=p, caption=message.message)
         else:
             bot.send_message(**args, text=message.message)
+        self.make_json("users.json", self.user_data)
 
     def change_state(self, chat_id, state):
+        self.make_json("users.json", self.user_data)
         if state not in self.dialogs:
             raise NameError("There is no such stage in dialogs, check config file :)")
         self.user_data[chat_id]["prev_stage"] = self.user_data[chat_id]["stage"]
         self.user_data[chat_id]["stage"] = state
         self.generate_message(chat_id)
 
-    def process_user(self, chat_id, text):
+    def make_json(self, name_file, massiv):
+        with open(name_file, "w") as fw:
+            json.dump(massiv, fw, indent=2, ensure_ascii=False)
 
+    def load_json(self, name_file):
+        with open(name_file, "r") as fr:
+            return json.load(fr)
+
+    def process_user(self, chat_id, text):
+        self.user_data = self.load_json("users.json")
         if chat_id not in self.user_data:
             self.user_data[chat_id] = {"stage": "hello"}
             self.generate_message(chat_id)
@@ -166,7 +177,7 @@ dialogs = Dialogs()
 
 @bot.message_handler(content_types=["text"])
 def get_text_messages(message):
-    dialogs.process_user(message.from_user.id, message.text)
+    dialogs.process_user(str(message.from_user.id), message.text)
     print(message.from_user.id)
 
 
