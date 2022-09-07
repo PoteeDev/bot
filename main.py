@@ -38,6 +38,8 @@ class Dialogs:
         self.waiting_answer = {}
 
     def read_config(self) -> dict:
+        if not os.path.exists("./users.json"):
+            self.make_json("./users.json", {})
         with self.config.open() as c:
             dialogs = yaml.safe_load(c.read())
             self.convert_config(dialogs)
