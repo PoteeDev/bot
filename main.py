@@ -9,6 +9,9 @@ from telebot import types
 import json
 
 bot = telebot.TeleBot(os.getenv("BOT_TOKEN"))
+databaseAddress = os.getenv("DATABASE")
+if not databaseAddress:
+    print("Enviroment virable DATABASE in not defined")
 
 
 @dataclass
@@ -38,8 +41,8 @@ class Dialogs:
         self.waiting_answer = {}
 
     def read_config(self) -> dict:
-        if not os.path.exists("./users.json"):
-            self.make_json("./users.json", {})
+        if not os.path.exists(databaseAddress):
+            self.make_json(databaseAddress, {})
         with self.config.open() as c:
             dialogs = yaml.safe_load(c.read())
             self.convert_config(dialogs)
@@ -133,10 +136,10 @@ class Dialogs:
                 bot.send_photo(**args, photo=p, caption=message.message)
         else:
             bot.send_message(**args, text=message.message)
-        self.make_json("users.json", self.user_data)
+        self.make_json(databaseAddress, self.user_data)
 
     def change_state(self, chat_id, state):
-        self.make_json("users.json", self.user_data)
+        self.make_json(databaseAddress, self.user_data)
         if state not in self.dialogs:
             raise NameError("There is no such stage in dialogs, check config file :)")
         self.user_data[chat_id]["prev_stage"] = self.user_data[chat_id]["stage"]
@@ -152,7 +155,7 @@ class Dialogs:
             return json.load(fr)
 
     def process_user(self, chat_id, text):
-        self.user_data = self.load_json("users.json")
+        self.user_data = self.load_json(databaseAddress)
         if chat_id not in self.user_data:
             self.user_data[chat_id] = {"stage": "hello"}
             self.generate_message(chat_id)

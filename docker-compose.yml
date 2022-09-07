@@ -4,5 +4,7 @@ services:
     build: .
     environment:
       - BOT_TOKEN=$BOT_TOKEN
+      - DATABASE=$DATABASE
     volumes:
-      - ./:/usr/src/app
+      - ./database:/usr/src/app/database
+      - ./img:/usr/src/app/img

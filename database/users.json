@@ -1,0 +1,9 @@
+{
+  "418156203": {
+    "stage": "ending",
+    "name": "miron",
+    "prev_stage": "default_user",
+    "entity": "miron",
+    "group": "miron"
+  }
+}
