@@ -21,15 +21,33 @@ class Buttons:
 
 
 @dataclass
+class Validate:
+    key: str = ""
+    wrong: str = ""
+    rule: str = ""
+
+
+@dataclass
 class Message:
     message: str = ""
     attachment: str = ""
     write: str = ""
     next: str = ""
-    validate: str = ""
+    validate: Validate = None
     wrong: str = ""
     buttons: List[Buttons] = None
     format: List[str] = None
+
+
+class ValidateRules:
+    def __init__(self) -> None:
+        pass
+
+    def team_rule(self, text, teams) -> int:
+        if text in teams:
+            return True
+        else:
+            return False
 
 
 class Dialogs:
@@ -39,6 +57,7 @@ class Dialogs:
         self.read_config()
         self.user_data = {}
         self.waiting_answer = {}
+        self.rules = ValidateRules()
 
     def read_config(self) -> dict:
         if not os.path.exists(databaseAddress):
@@ -85,6 +104,15 @@ class Dialogs:
                     raise NameError(
                         f"attachment '{message.attachment}' does not exist "
                     )
+            # if message.validate:
+            #     if not message.validate.key:
+            #         raise NameError(
+            #             f"message validate '{message}' does not have input what to validate "
+            #         )
+            #     if not message.validate.rule:
+            #         raise NameError(
+            #             f"message validate '{message}' does not have rule how to validate "
+            #         )
 
         if len(nexts) + 1 != len(self.dialogs):
             raise NameError("count of next messages invalid")
@@ -93,6 +121,8 @@ class Dialogs:
         for name, values in dialogs["dialogs"].items():
             if "buttons" in values:
                 values["buttons"] = list(map(lambda x: Buttons(**x), values["buttons"]))
+            if "validate" in values:
+                values["validate"] = Validate(**values["validate"])
             self.dialogs[name] = Message(**values)
         return self.dialogs
 
@@ -162,7 +192,21 @@ class Dialogs:
             return
         print(self.user_data)
         message = self.dialogs[self.user_data[chat_id]["stage"]]
+        if message.validate:
+            if message.validate.rule == "user_check":
+                teams = []
+                print(self.user_data)
+                for _user in list(self.user_data):
+                    print(self.user_data[_user])
+                    if self.user_data[_user].get("entity"):
+                        teams.append(self.user_data[_user].get("entity"))
 
+                if not self.rules.team_rule(text, teams):
+                    bot.send_message(chat_id, message.validate.wrong)
+                else:
+                    self.user_data[chat_id][message.write] = text
+                    self.change_state(chat_id, message.next)
+                    return
         if message.write:
             self.user_data[chat_id][message.write] = text
 

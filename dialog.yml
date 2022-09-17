@@ -14,14 +14,18 @@ dialogs:
   capitan:
     message: "Enter your team name"
     write: entity
+    validate:
+      key: entity
+      rule: user_check
+      wrong: "team is already exist"
     next: default_user
   user:
     message: "Enter your team name that already exist"
     write: entity
     validate:
       key: entity
-      wrong: "sory"
-      next: user
+      rule: user_check
+      wrong: "Capitan does not created team"
     next: default_user
 
   default_user:
